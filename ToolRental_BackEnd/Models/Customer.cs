@@ -15,8 +15,7 @@ namespace ToolRental_BackEnd.Models
     public partial class Customer
     {
         public int CustomerID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string CustomerName { get; set; }
         public Nullable<bool> SafetyInduction { get; set; }
         public int WorkspaceID { get; set; }
     }

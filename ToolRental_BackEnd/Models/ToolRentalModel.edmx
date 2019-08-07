@@ -4,14 +4,17 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="ToolRentalModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="ToolRentalModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Customer">
           <Key>
             <PropertyRef Name="CustomerID" />
+            <PropertyRef Name="CustomerName" />
+            <PropertyRef Name="WorkspaceID" />
           </Key>
-          <Property Name="CustomerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FirstName" Type="varchar" MaxLength="30" />
-          <Property Name="LastName" Type="varchar" MaxLength="30" />
+          <Property Name="CustomerID" Type="int" Nullable="false" />
+          <Property Name="CustomerName" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="SafetyInduction" Type="bit" />
           <Property Name="WorkspaceID" Type="int" Nullable="false" />
         </EntityType>
@@ -51,27 +54,23 @@
           <Property Name="WorkspaceName" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityContainer Name="ToolRentalModelStoreContainer">
-          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rental" EntityType="Self.Rental" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RentalItem" EntityType="Self.RentalItem" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tools" EntityType="Self.Tools" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Workspace" EntityType="Self.Workspace" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Customer" EntityType="Self.Customer" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Customer].[CustomerID] AS [CustomerID], 
+    [Customer].[CustomerName] AS [CustomerName], 
+    [Customer].[SafetyInduction] AS [SafetyInduction], 
+    [Customer].[WorkspaceID] AS [WorkspaceID]
+    FROM [dbo].[Customer] AS [Customer]</DefiningQuery>
+          </EntitySet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="ToolRentalModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Customer">
-          <Key>
-            <PropertyRef Name="CustomerID" />
-          </Key>
-          <Property Name="CustomerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FirstName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="LastName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="SafetyInduction" Type="Boolean" />
-          <Property Name="WorkspaceID" Type="Int32" Nullable="false" />
-        </EntityType>
         <EntityType Name="Rental">
           <Key>
             <PropertyRef Name="RentalID" />
@@ -108,29 +107,29 @@
           <Property Name="WorkspaceName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityContainer Name="ToolRentalEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Customers" EntityType="Self.Customer" />
           <EntitySet Name="Rentals" EntityType="Self.Rental" />
           <EntitySet Name="RentalItems" EntityType="Self.RentalItem" />
           <EntitySet Name="Tools" EntityType="Self.Tool" />
           <EntitySet Name="Workspaces" EntityType="Self.Workspace" />
+          <EntitySet Name="Customers" EntityType="ToolRentalModel.Customer" />
         </EntityContainer>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+            <PropertyRef Name="CustomerName" />
+            <PropertyRef Name="WorkspaceID" />
+          </Key>
+          <Property Name="CustomerID" Type="Int32" Nullable="false" />
+          <Property Name="CustomerName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SafetyInduction" Type="Boolean" />
+          <Property Name="WorkspaceID" Type="Int32" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="ToolRentalModelStoreContainer" CdmEntityContainer="ToolRentalEntities">
-          <EntitySetMapping Name="Customers">
-            <EntityTypeMapping TypeName="ToolRentalModel.Customer">
-              <MappingFragment StoreEntitySet="Customer">
-                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
-                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
-                <ScalarProperty Name="LastName" ColumnName="LastName" />
-                <ScalarProperty Name="SafetyInduction" ColumnName="SafetyInduction" />
-                <ScalarProperty Name="WorkspaceID" ColumnName="WorkspaceID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Rentals">
             <EntityTypeMapping TypeName="ToolRentalModel.Rental">
               <MappingFragment StoreEntitySet="Rental">
@@ -167,6 +166,16 @@
               <MappingFragment StoreEntitySet="Workspace">
                 <ScalarProperty Name="WorkspaceID" ColumnName="WorkspaceID" />
                 <ScalarProperty Name="WorkspaceName" ColumnName="WorkspaceName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customers">
+            <EntityTypeMapping TypeName="ToolRentalModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="WorkspaceID" ColumnName="WorkspaceID" />
+                <ScalarProperty Name="SafetyInduction" ColumnName="SafetyInduction" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

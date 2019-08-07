@@ -25,10 +25,10 @@ namespace ToolRental_BackEnd.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Rental> Rentals { get; set; }
         public virtual DbSet<RentalItem> RentalItems { get; set; }
         public virtual DbSet<Tool> Tools { get; set; }
         public virtual DbSet<Workspace> Workspaces { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
     }
 }
