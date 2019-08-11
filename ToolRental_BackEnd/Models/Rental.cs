@@ -14,9 +14,18 @@ namespace ToolRental_BackEnd.Models
     
     public partial class Rental
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Rental()
+        {
+            this.RentalItems = new HashSet<RentalItem>();
+        }
+    
         public int RentalID { get; set; }
         public int CustomerID { get; set; }
         public System.DateTime DateRented { get; set; }
         public Nullable<System.DateTime> DateReturned { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RentalItem> RentalItems { get; set; }
     }
 }

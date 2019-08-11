@@ -17,5 +17,7 @@ namespace ToolRental_BackEnd.Models
         public int RentalItemID { get; set; }
         public int RentalId { get; set; }
         public int ToolID { get; set; }
+    
+        public virtual Rental Rental { get; set; }
     }
 }

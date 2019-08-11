@@ -35,8 +35,17 @@ namespace ToolRental_BackEnd.Controllers
             return Ok(rentalItem);
         }
 
-        // PUT: api/RentalItems/5
-        [ResponseType(typeof(void))]
+		[HttpGet]
+		[Route("api/RentalItemsById/{id}")]
+		[ResponseType(typeof(RentalItemsController))]
+		public IQueryable<RentalItem> GetRentalItemsById(int Id)
+		{
+			// to get Rental Items using RentalID
+			return db.RentalItems.Where(ri => ri.RentalId == Id);
+		}
+
+		// PUT: api/RentalItems/5
+		[ResponseType(typeof(void))]
         public IHttpActionResult PutRentalItem(int id, RentalItem rentalItem)
         {
             if (!ModelState.IsValid)

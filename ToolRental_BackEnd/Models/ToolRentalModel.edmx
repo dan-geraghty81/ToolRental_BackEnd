@@ -5,16 +5,12 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="ToolRentalModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Customer">
           <Key>
             <PropertyRef Name="CustomerID" />
-            <PropertyRef Name="CustomerName" />
-            <PropertyRef Name="WorkspaceID" />
           </Key>
-          <Property Name="CustomerID" Type="int" Nullable="false" />
-          <Property Name="CustomerName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="CustomerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CustomerName" Type="varchar" MaxLength="100" />
           <Property Name="SafetyInduction" Type="bit" />
           <Property Name="WorkspaceID" Type="int" Nullable="false" />
         </EntityType>
@@ -53,24 +49,55 @@ warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary k
           <Property Name="WorkspaceID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="WorkspaceName" Type="varchar" MaxLength="30" />
         </EntityType>
+        <Association Name="FK_RentalItem_Rental">
+          <End Role="Rental" Type="Self.Rental" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="RentalItem" Type="Self.RentalItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rental">
+              <PropertyRef Name="RentalID" />
+            </Principal>
+            <Dependent Role="RentalItem">
+              <PropertyRef Name="RentalId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="ToolRentalModelStoreContainer">
+          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rental" EntityType="Self.Rental" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RentalItem" EntityType="Self.RentalItem" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tools" EntityType="Self.Tools" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Workspace" EntityType="Self.Workspace" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Customer" EntityType="Self.Customer" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [Customer].[CustomerID] AS [CustomerID], 
-    [Customer].[CustomerName] AS [CustomerName], 
-    [Customer].[SafetyInduction] AS [SafetyInduction], 
-    [Customer].[WorkspaceID] AS [WorkspaceID]
-    FROM [dbo].[Customer] AS [Customer]</DefiningQuery>
-          </EntitySet>
+          <AssociationSet Name="FK_RentalItem_Rental" Association="Self.FK_RentalItem_Rental">
+            <End Role="Rental" EntitySet="Rental" />
+            <End Role="RentalItem" EntitySet="RentalItem" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="ToolRentalModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="ToolRentalEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Customers" EntityType="ToolRentalModel.Customer" />
+          <EntitySet Name="Rentals" EntityType="ToolRentalModel.Rental" />
+          <EntitySet Name="RentalItems" EntityType="ToolRentalModel.RentalItem" />
+          <EntitySet Name="Tools" EntityType="ToolRentalModel.Tool" />
+          <EntitySet Name="Workspaces" EntityType="ToolRentalModel.Workspace" />
+          <AssociationSet Name="FK_RentalItem_Rental" Association="ToolRentalModel.FK_RentalItem_Rental">
+            <End Role="Rental" EntitySet="Rentals" />
+            <End Role="RentalItem" EntitySet="RentalItems" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="CustomerID" />
+          </Key>
+          <Property Name="CustomerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CustomerName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SafetyInduction" Type="Boolean" />
+          <Property Name="WorkspaceID" Type="Int32" Nullable="false" />
+        </EntityType>
         <EntityType Name="Rental">
           <Key>
             <PropertyRef Name="RentalID" />
@@ -79,6 +106,7 @@ warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary k
           <Property Name="CustomerID" Type="Int32" Nullable="false" />
           <Property Name="DateRented" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="DateReturned" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="RentalItems" Relationship="ToolRentalModel.FK_RentalItem_Rental" FromRole="Rental" ToRole="RentalItem" />
         </EntityType>
         <EntityType Name="RentalItem">
           <Key>
@@ -87,6 +115,7 @@ warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary k
           <Property Name="RentalItemID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="RentalId" Type="Int32" Nullable="false" />
           <Property Name="ToolID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Rental" Relationship="ToolRentalModel.FK_RentalItem_Rental" FromRole="RentalItem" ToRole="Rental" />
         </EntityType>
         <EntityType Name="Tool">
           <Key>
@@ -106,69 +135,26 @@ warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary k
           <Property Name="WorkspaceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="WorkspaceName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityContainer Name="ToolRentalEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Rentals" EntityType="Self.Rental" />
-          <EntitySet Name="RentalItems" EntityType="Self.RentalItem" />
-          <EntitySet Name="Tools" EntityType="Self.Tool" />
-          <EntitySet Name="Workspaces" EntityType="Self.Workspace" />
-          <EntitySet Name="Customers" EntityType="ToolRentalModel.Customer" />
-        </EntityContainer>
-        <EntityType Name="Customer">
-          <Key>
-            <PropertyRef Name="CustomerID" />
-            <PropertyRef Name="CustomerName" />
-            <PropertyRef Name="WorkspaceID" />
-          </Key>
-          <Property Name="CustomerID" Type="Int32" Nullable="false" />
-          <Property Name="CustomerName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="SafetyInduction" Type="Boolean" />
-          <Property Name="WorkspaceID" Type="Int32" Nullable="false" />
-        </EntityType>
+        <Association Name="FK_RentalItem_Rental">
+          <End Type="ToolRentalModel.Rental" Role="Rental" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="ToolRentalModel.RentalItem" Role="RentalItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rental">
+              <PropertyRef Name="RentalID" />
+            </Principal>
+            <Dependent Role="RentalItem">
+              <PropertyRef Name="RentalId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="ToolRentalModelStoreContainer" CdmEntityContainer="ToolRentalEntities">
-          <EntitySetMapping Name="Rentals">
-            <EntityTypeMapping TypeName="ToolRentalModel.Rental">
-              <MappingFragment StoreEntitySet="Rental">
-                <ScalarProperty Name="RentalID" ColumnName="RentalID" />
-                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
-                <ScalarProperty Name="DateRented" ColumnName="DateRented" />
-                <ScalarProperty Name="DateReturned" ColumnName="DateReturned" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="RentalItems">
-            <EntityTypeMapping TypeName="ToolRentalModel.RentalItem">
-              <MappingFragment StoreEntitySet="RentalItem">
-                <ScalarProperty Name="RentalItemID" ColumnName="RentalItemID" />
-                <ScalarProperty Name="RentalId" ColumnName="RentalId" />
-                <ScalarProperty Name="ToolID" ColumnName="ToolID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Tools">
-            <EntityTypeMapping TypeName="ToolRentalModel.Tool">
-              <MappingFragment StoreEntitySet="Tools">
-                <ScalarProperty Name="ToolID" ColumnName="ToolID" />
-                <ScalarProperty Name="ToolName" ColumnName="ToolName" />
-                <ScalarProperty Name="Brand" ColumnName="Brand" />
-                <ScalarProperty Name="Inactive" ColumnName="Inactive" />
-                <ScalarProperty Name="Comments" ColumnName="Comments" />
-                <ScalarProperty Name="Rented" ColumnName="Rented" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Workspaces">
-            <EntityTypeMapping TypeName="ToolRentalModel.Workspace">
-              <MappingFragment StoreEntitySet="Workspace">
-                <ScalarProperty Name="WorkspaceID" ColumnName="WorkspaceID" />
-                <ScalarProperty Name="WorkspaceName" ColumnName="WorkspaceName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Customers">
             <EntityTypeMapping TypeName="ToolRentalModel.Customer">
               <MappingFragment StoreEntitySet="Customer">
@@ -176,6 +162,45 @@ warning 6002: The table/view 'ToolRental.dbo.Customer' does not have a primary k
                 <ScalarProperty Name="SafetyInduction" ColumnName="SafetyInduction" />
                 <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
                 <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rentals">
+            <EntityTypeMapping TypeName="ToolRentalModel.Rental">
+              <MappingFragment StoreEntitySet="Rental">
+                <ScalarProperty Name="DateReturned" ColumnName="DateReturned" />
+                <ScalarProperty Name="DateRented" ColumnName="DateRented" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="RentalID" ColumnName="RentalID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RentalItems">
+            <EntityTypeMapping TypeName="ToolRentalModel.RentalItem">
+              <MappingFragment StoreEntitySet="RentalItem">
+                <ScalarProperty Name="ToolID" ColumnName="ToolID" />
+                <ScalarProperty Name="RentalId" ColumnName="RentalId" />
+                <ScalarProperty Name="RentalItemID" ColumnName="RentalItemID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tools">
+            <EntityTypeMapping TypeName="ToolRentalModel.Tool">
+              <MappingFragment StoreEntitySet="Tools">
+                <ScalarProperty Name="Rented" ColumnName="Rented" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="Inactive" ColumnName="Inactive" />
+                <ScalarProperty Name="Brand" ColumnName="Brand" />
+                <ScalarProperty Name="ToolName" ColumnName="ToolName" />
+                <ScalarProperty Name="ToolID" ColumnName="ToolID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Workspaces">
+            <EntityTypeMapping TypeName="ToolRentalModel.Workspace">
+              <MappingFragment StoreEntitySet="Workspace">
+                <ScalarProperty Name="WorkspaceName" ColumnName="WorkspaceName" />
+                <ScalarProperty Name="WorkspaceID" ColumnName="WorkspaceID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
