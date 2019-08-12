@@ -41,6 +41,7 @@
           <Property Name="Inactive" Type="bit" />
           <Property Name="Comments" Type="varchar" MaxLength="255" />
           <Property Name="Rented" Type="bit" />
+          <Property Name="PicFileName" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="Workspace">
           <Key>
@@ -127,6 +128,7 @@
           <Property Name="Inactive" Type="Boolean" />
           <Property Name="Comments" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="Rented" Type="Boolean" />
+          <Property Name="PicFileName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Workspace">
           <Key>
@@ -187,6 +189,7 @@
           <EntitySetMapping Name="Tools">
             <EntityTypeMapping TypeName="ToolRentalModel.Tool">
               <MappingFragment StoreEntitySet="Tools">
+                <ScalarProperty Name="PicFileName" ColumnName="PicFileName" />
                 <ScalarProperty Name="Rented" ColumnName="Rented" />
                 <ScalarProperty Name="Comments" ColumnName="Comments" />
                 <ScalarProperty Name="Inactive" ColumnName="Inactive" />

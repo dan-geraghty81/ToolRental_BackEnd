@@ -20,5 +20,6 @@ namespace ToolRental_BackEnd.Models
         public Nullable<bool> Inactive { get; set; }
         public string Comments { get; set; }
         public Nullable<bool> Rented { get; set; }
+        public string PicFileName { get; set; }
     }
 }
