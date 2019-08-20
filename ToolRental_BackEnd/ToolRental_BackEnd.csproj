@@ -204,7 +204,10 @@
       <DependentUpon>ToolRentalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\CurrentActiveToolsViewModel.cs" />
+    <Compile Include="ViewModels\RetiredToolListViewModel.cs" />
     <Compile Include="ViewModels\ToolRentalCountViewModel.cs" />
+    <Compile Include="ViewModels\CurrentRentedToolsViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
